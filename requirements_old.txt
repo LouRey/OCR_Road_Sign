@@ -1,0 +1,13 @@
+ipython>=8.10
+jupyterlab>=3.0
+kedro~=0.19.5
+kedro-telemetry>=0.3.1
+notebook
+opencv-python
+torch
+torchvision
+torchaudio
+pytesseract
+ultralytics
+shapely
+kedro-datasets[pandas]>=6.0,<7.0
