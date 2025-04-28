@@ -1,0 +1,16 @@
+# Here you can define all your data sets by using simple YAML syntax.
+#
+# Documentation for this file format can be found in "The Data Catalog"
+# Link: https://docs.kedro.org/en/stable/data/data_catalog.html
+
+input_video:
+  type: kedro_road_sign.datasets.video_dataset.VideoDataSet
+  filepath: data/01_raw/video.mp4
+
+ocr_results:
+  type: json.JSONDataSet
+  filepath: data/07_model_output/ocr_results.json
+
+annotated_video:
+  type: kedro_datasets.video.video_dataset.VideoDataSet
+  filepath: data/08_reporting/annotated.mp4
