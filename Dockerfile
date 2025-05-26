@@ -19,19 +19,21 @@ RUN apt-get update \
       libglib2.0-0 \
  && rm -rf /var/lib/apt/lists/*
 
+# Copier dépendances Python
 COPY requirements.txt pyproject.toml ./
 
+# Installer pip et dépendances
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade pip \
  && pip install --no-cache-dir -r requirements.txt \
- && pip install --no-cache-dir gunicorn kedro-datasets
+ && pip install --no-cache-dir streamlit kedro-datasets
 
 ########################################
 # Stage 2: Runtime
 ########################################
 FROM python:3.10-slim AS runtime
 
-# Installer dépendances système (OpenCV, Tesseract natif et curl pour récupérer les données)
+# Installer dépendances système (OpenCV, Tesseract, curl)
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       libgl1-mesa-glx \
@@ -42,44 +44,45 @@ RUN apt-get update \
       curl \
  && rm -rf /var/lib/apt/lists/*
 
-# Télécharger manuellement le modèle français dans le bon dossier
+# Télécharger modèle de langue français pour Tesseract
 RUN mkdir -p /usr/share/tessdata \
  && curl -sSL \
     https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata \
     -o /usr/share/tessdata/fra.traineddata
 
-# Créer un utilisateur non-root
+# Créer utilisateur non-root
 RUN groupadd --system app \
  && useradd --system --create-home --gid app app
 
 WORKDIR /app
 
-# Copier libs Python depuis le builder
+# Copier bibliothèques Python du builder
 COPY --from=builder /usr/local /usr/local
 
-# Variables d'environnement
-ENV PATH=/usr/local/bin:$PATH \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PORT=8080 \
-    KEDRO_ENV=local \
-    TESSDATA_PREFIX=/usr/share/tessdata
-
+# Copier le code source
 COPY . .
 
-# Installer le projet en mode editable via pyproject.toml
+# Donner à l'utilisateur app la main sur le dossier de configuration
+RUN chown -R app:app /app/conf
+# Donner à l'utilisateur non-root "app" la propriété de tout /app
+RUN chown -R app:app /app/data
+
+# Préparer tmp et modèles
+RUN mkdir -p /app/tmp /app/models \
+ && chown -R app:app /app/tmp /app/models
+
+# Installer le projet en mode editable
 RUN pip install --no-cache-dir -e .
 
+# Passer à l'utilisateur non-root
 USER app
 
-EXPOSE 8080
+# Exposer le port default Streamlit (8501)
+EXPOSE 8501
 
+# Healthcheck optionnel pour la UI (ici on check /)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
-  CMD curl -f http://127.0.0.1:${PORT}/health || exit 1
+  CMD curl -f http://127.0.0.1:8501/ || exit 1
 
-CMD ["gunicorn",  \
-     "--bind", "0.0.0.0:8080",  \
-     "--workers", "2",  \
-     "--timeout", "0",  \
-     "app:app"  \
-    ]
+# Lancer Streamlit
+CMD ["streamlit", "run", "app.py", "--server.fileWatcherType", "none", "--server.port=8501", "--server.address=0.0.0.0"]

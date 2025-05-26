@@ -97,6 +97,12 @@ def detect_and_ocr(video_path: str, model_path: str, max_frames: int = 0) -> lis
     return rois_with_texts
 
 def annotate_video(video_path: str, rois_with_texts: list, model_path: str, output_path: str = "data/08_reporting/annotated.mp4", max_frames: int = 0) -> str:
+    
+    # —> Suppression du fichier de sortie existant
+    if os.path.exists(output_path):
+        os.remove(output_path)
+        logger.info(f"[ANNOTATION] Ancien fichier supprimé : {output_path}")
+    
     cap = cv2.VideoCapture(video_path)
     model = YOLO(model_path)
 
