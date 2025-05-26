@@ -18,7 +18,7 @@ import re
 import logging
 
 logger = logging.getLogger(__name__)
-os.environ["TESSDATA_PREFIX"] = "/opt/homebrew/share/tessdata/"
+#os.environ["TESSDATA_PREFIX"] = "/opt/homebrew/share/tessdata/"
 
 def _get_device():
     if torch.cuda.is_available():

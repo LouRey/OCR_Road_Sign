@@ -11,6 +11,6 @@ ocr_results:
   type: json.JSONDataSet
   filepath: data/07_model_output/ocr_results.json
 
-annotated_video:
-  type: kedro_datasets.video.video_dataset.VideoDataSet
-  filepath: data/08_reporting/annotated.mp4
+#annotated_video:
+ # type: kedro_datasets.video.video_dataset.VideoDataset
+  #filepath: data/08_reporting/annotated.mp4
