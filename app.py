@@ -56,12 +56,50 @@ st.title("Pipeline OCR Kedro & Streamlit")
 # Nettoyage d'anciennes données
 clean_tmp()
 
+# Upload vidéo & modèle dans la sidebar
+st.sidebar.header("Uploader les fichiers requis")
+video_uploaded = st.sidebar.file_uploader("Vidéo (.mp4)", type=["mp4"], key="video")
+model_uploaded = st.sidebar.file_uploader("Modèle (.pt)", type=["pt"], key="model")
+
+uploaded_video_path = PROJECT_PATH / "data" / "01_raw" / "video.mp4"
+uploaded_model_path = PROJECT_PATH / "data" / "06_models" / "uploaded_model.pt"
+
+if video_uploaded:
+    uploaded_video_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(uploaded_video_path, "wb") as f:
+        f.write(video_uploaded.getbuffer())
+    st.sidebar.success("Vidéo enregistrée.")
+
+if model_uploaded:
+    uploaded_model_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(uploaded_model_path, "wb") as f:
+        f.write(model_uploaded.getbuffer())
+    st.sidebar.success("Modèle enregistré.")
+
+# Exécution auto si les deux fichiers sont présents
+if uploaded_video_path.exists() and uploaded_model_path.exists():
+    st.success("Vidéo et modèle détectés. Exécution automatique du pipeline...")
+
+    metadata = bootstrap_project(PROJECT_PATH)
+    session = KedroSession.create(project_path=metadata.project_path)
+    context = session.load_context()
+    session.run()
+
+    rel_out = context.params["annotated_output_path"]
+    output_path = PROJECT_PATH / rel_out
+
+    if output_path.exists():
+        st.success("Pipeline exécuté ! Voici la vidéo annotée :")
+        st.video(str(output_path))
+    else:
+        st.error(f"Le pipeline s'est exécuté, mais introuvable : {output_path}")
+    st.stop()
+
 # Choix du mode
 mode = st.sidebar.selectbox(
     "Mode d'exécution",
     [
         "Exécuter pipeline Kedro (modèle par défaut)",
-        "Uploader un nouveau modèle & exécuter",
         "Flux vidéo live",
     ],
 )
@@ -70,7 +108,6 @@ mode = st.sidebar.selectbox(
 if mode == "Exécuter pipeline Kedro (modèle par défaut)":
     st.header("Pipeline Kedro avec modèle par défaut")
 
-    # Slider pour max_frames (modifie directement le YAML)
     ocr_params = load_ocr_params()
     default_max = ocr_params.get("max_frames", 500)
     new_max = st.slider(
@@ -85,14 +122,23 @@ if mode == "Exécuter pipeline Kedro (modèle par défaut)":
         save_ocr_params(ocr_params)
         st.info(f"→ max_frames mis à jour dans {PARAMS_FILE.name} : {new_max}")
 
-    if st.button("Lancer le pipeline"):
-        # Bootstrap et session Kedro
+    video_path = PROJECT_PATH / "data" / "01_raw" / "video.mp4"
+    model_dir = PROJECT_PATH / "data" / "06_models"
+    model_files = list(model_dir.glob("*.pt"))
+
+    if not video_path.exists():
+        st.warning("Aucune vidéo trouvée dans `data/01_raw/video.mp4`.")
+    if not model_files:
+        st.warning("Aucun modèle trouvé dans `data/06_models/*.pt`.")
+
+    can_run = video_path.exists() and model_files
+
+    if can_run and st.button("Lancer le pipeline", disabled=not can_run):
         metadata = bootstrap_project(PROJECT_PATH)
         session = KedroSession.create(project_path=metadata.project_path)
         context = session.load_context()
-        session.run()  # exécute le pipeline __default__ (OCR)
+        session.run()
 
-        # Récupérer le chemin de sortie depuis les params Kedro
         rel_out = context.params["annotated_output_path"]
         output_path = PROJECT_PATH / rel_out
 
@@ -102,37 +148,8 @@ if mode == "Exécuter pipeline Kedro (modèle par défaut)":
         else:
             st.error(f"Le pipeline s'est exécuté, mais introuvable : {output_path}")
 
-# === Mode 2 : upload & exécution avec nouveau modèle ===
-elif mode == "Uploader un nouveau modèle & exécuter":
-    st.header("Upload & exécution avec nouveau modèle")
-    uploaded_file = st.file_uploader("Choisir un fichier .pt", type=["pt"])
-    if uploaded_file is not None:
-        model_path = TMP_DIR / uploaded_file.name
-        with open(model_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        st.write(f"Modèle sauvegardé: {model_path}")
-
-        if st.button("Lancer le pipeline avec ce modèle"):
-            # On suppose que le fichier vidéo d'entrée est déjà présent dans tmp/input.mp4
-            input_video = TMP_DIR / "input.mp4"
-            rois = detect_and_ocr(
-                video_path=str(input_video),
-                model_path=str(model_path),
-                max_frames=ocr_params.get("max_frames", 500),
-            )
-            output_path = TMP_DIR / "annotated_output.mp4"
-            annotate_video(
-                video_path=str(input_video),
-                rois_with_texts=rois,
-                model_path=str(model_path),
-                output_path=str(output_path),
-            )
-            st.video(str(output_path))
-            texts = [text for _, text in rois]
-            st.write("Textes détectés :", texts)
-
-# === Mode 3 : flux vidéo live ===
-else:
+# === Mode 2 : flux vidéo live ===
+elif mode == "Flux vidéo live":
     st.header("Flux vidéo live")
     st.write("Sélectionnez la caméra disponible :")
     cams = []
