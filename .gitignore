@@ -9,13 +9,19 @@ conf/local/**
 # ignore potentially sensitive credentials files
 conf/**/*credentials*
 
-# ignore everything in the following folders
+# Ignore tous les fichiers dans ces dossiers
 data/**
 logs/**
 
-# except their sub-folders
+# ...mais pas les dossiers eux-mêmes ni leur arborescence
+!data/
 !data/**/
+!data/.gitkeep
+
+!logs/
 !logs/**/
+!logs/.gitkeep
+
 
 # also keep all .gitkeep files
 !.gitkeep
