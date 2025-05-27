@@ -1,0 +1,3 @@
+nvidia-pyindex
+nvidia-tensorrt
+# pytorch, torchvision non nécessaires si inclus dans l'image de base

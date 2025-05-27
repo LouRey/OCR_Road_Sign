@@ -160,4 +160,3 @@ websocket-client==1.8.0
 zipp==3.21.0
 flask
 kedro-datasets
-tesseract

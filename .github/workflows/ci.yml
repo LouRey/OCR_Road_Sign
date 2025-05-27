@@ -6,42 +6,31 @@ on:
   pull_request:
     branches: ["main"]
 
+env:
+  IMAGE_NAME: yolov8-10_ocr_app
+
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [mac, jetson]  # <- c’est ici qu’on déclare les deux cibles
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y tesseract-ocr libsm6 libxext6
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov
-
-      #- name: Run tests with coverage
-      #  run: |
-      #    pytest tests/ --cov=src --cov-fail-under=80
-
-      - name: Build Docker image
-        run: |
-          docker build -t "${{ secrets.DOCKERHUB_USERNAME }}"/yolov8-10_ocr_app:latest .
+      - name: Set up QEMU (for cross-platform builds if needed)
+        uses: docker/setup-qemu-action@v2
 
       - name: Login to DockerHub
-        if: success()  # on ne se connecte que si les tests ont reussi
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      - name: Push Docker image
-        if: success()  # on ne push que si success
+      - name: Build and push image for ${{ matrix.target }}
         run: |
-          docker push "${{ secrets.DOCKERHUB_USERNAME }}"/yolov8-10_ocr_app:latest
-
+          docker build -f Dockerfile.${{ matrix.target }} \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ matrix.target }} .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ matrix.target }}
