@@ -1,99 +1,143 @@
-# kedro_road_sign
+# 📦 OCR Panneaux Routiers - Jetson Nano (YOLOv8 + Tesseract)
 
-## Overview
+Ce guide vous permet d’installer, configurer et exécuter une application de détection et lecture de panneaux routiers sur une Jetson Nano via Docker.
 
-This is your new Kedro project, which was generated using `kedro 0.19.5`.
+L’application repose sur Kedro, Streamlit, YOLOv8 et Tesseract OCR.
 
-Take a look at the [Kedro documentation](https://docs.kedro.org) to get started.
+---
 
-## Rules and guidelines
+## 🔧 1. Installer un gestionnaire de conteneurs (Portainer)
 
-In order to get the best out of the template:
+Portainer est une interface web pour gérer vos conteneurs Docker simplement.
 
-* Don't remove any lines from the `.gitignore` file we provide
-* Make sure your results can be reproduced by following a data engineering convention
-* Don't commit data to your repository
-* Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
+### 1.1 Vérifier que Docker fonctionne
 
-## How to install dependencies
-
-Declare any dependencies in `requirements.txt` for `pip` installation.
-
-To install them, run:
-
-```
-pip install -r requirements.txt
+```bash
+docker version
+docker info
 ```
 
-## How to run your Kedro pipeline
+Si vous avez une erreur du type `Got permission denied while trying to connect to the Docker daemon socket` :
 
-You can run your Kedro project with:
-
-```
-kedro run
-```
-
-## How to test your Kedro project
-
-Have a look at the file `src/tests/test_run.py` for instructions on how to write your tests. You can run your tests as follows:
-
-```
-pytest
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
 ```
 
-You can configure the coverage threshold in your project's `pyproject.toml` file under the `[tool.coverage.report]` section.
+> ✅ Redémarrez votre terminal ou votre Jetson si besoin.
 
+### 1.2 Créer un volume pour Portainer
 
-## Project dependencies
-
-To see and update the dependency requirements for your project use `requirements.txt`. You can install the project requirements with `pip install -r requirements.txt`.
-
-[Further information about project dependencies](https://docs.kedro.org/en/stable/kedro_project_setup/dependencies.html#project-specific-dependencies)
-
-## How to work with Kedro and notebooks
-
-> Note: Using `kedro jupyter` or `kedro ipython` to run your notebook provides these variables in scope: `context`, 'session', `catalog`, and `pipelines`.
->
-> Jupyter, JupyterLab, and IPython are already included in the project requirements by default, so once you have run `pip install -r requirements.txt` you will not need to take any extra steps before you use them.
-
-### Jupyter
-To use Jupyter notebooks in your Kedro project, you need to install Jupyter:
-
-```
-pip install jupyter
+```bash
+docker volume create portainer_data
 ```
 
-After installing Jupyter, you can start a local notebook server:
+### 1.3 Lancer Portainer
 
-```
-kedro jupyter notebook
-```
-
-### JupyterLab
-To use JupyterLab, you need to install it:
-
-```
-pip install jupyterlab
+```bash
+docker run -d -p 8000:8000 -p 9443:9443 \
+  --name portainer \
+  --restart=always \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v portainer_data:/data \
+  portainer/portainer-ce:latest
 ```
 
-You can also start JupyterLab:
+### 1.4 Accéder à l’interface
+
+Dans un navigateur connecté au réseau local :
 
 ```
-kedro jupyter lab
+https://<IP_DE_LA_JETSON>:9443
 ```
 
-### IPython
-And if you want to run an IPython session:
+Créez un compte admin, connectez le "Local Docker environment".
+
+---
+
+## 🧬 2. Cloner le dépôt de l'application
+
+```bash
+git clone https://github.com/tonuser/yolov8-ocr-app.git
+cd yolov8-ocr-app
+```
+
+---
+
+## 🏗️ 3. Construire l'image Docker sur la Jetson
+
+Assurez-vous d'être bien sur la Jetson avec une version de JetPack 5.x.
+
+### 3.1 Build de l'image avec le Dockerfile Jetson
+
+```bash
+docker build -f Dockerfile.jetson -t yolov8-ocr-app:jetson .
+```
+
+> ⚠️ Cette commande peut prendre plusieurs minutes.
+
+---
+
+## 🚀 4. Exécuter l'application
+
+### 4.1 Lancer le conteneur avec accès à la caméra
+
+```bash
+docker run -it --rm \
+  --device=/dev/video0:/dev/video0 \
+  -p 8501:8501 \
+  yolov8-ocr-app:jetson
+```
+
+### 4.2 Accès à l’interface Streamlit
 
 ```
-kedro ipython
+http://<IP_DE_LA_JETSON>:8501
 ```
 
-### How to ignore notebook output cells in `git`
-To automatically strip out all output cell contents before committing to `git`, you can use tools like [`nbstripout`](https://github.com/kynan/nbstripout). For example, you can add a hook in `.git/config` with `nbstripout --install`. This will run `nbstripout` before anything is committed to `git`.
+---
 
-> *Note:* Your output cells will be retained locally.
+## 📤 5. Pousser l’image sur Docker Hub (optionnel)
 
-## Package your Kedro project
+```bash
+docker tag yolov8-ocr-app:jetson tonuser/yolov8-ocr-app:jetson
 
-[Further information about building project documentation and packaging your project](https://docs.kedro.org/en/stable/tutorial/package_a_project.html)
+docker login
+# entrer votre identifiant et mot de passe Docker Hub
+
+docker push tonuser/yolov8-ocr-app:jetson
+```
+
+---
+
+## ✅ 6. Astuces de débogage
+
+### Accès aux logs d'un conteneur en cours
+
+```bash
+docker ps  # pour récupérer l’ID du conteneur
+docker logs <container_id>
+```
+
+### Lister les caméras disponibles
+
+```bash
+ls /dev/video*
+```
+
+### Tester le flux vidéo manuellement (si installé)
+
+```bash
+sudo apt install v4l-utils
+v4l2-ctl --list-devices
+```
+
+---
+
+## 📚 Références
+
+* Kedro: [https://kedro.readthedocs.io/](https://kedro.readthedocs.io/)
+* Streamlit: [https://docs.streamlit.io/](https://docs.streamlit.io/)
+* Tesseract: [https://tesseract-ocr.github.io/](https://tesseract-ocr.github.io/)
+* YOLOv8: [https://docs.ultralytics.com/models/yolov8/](https://docs.ultralytics.com/models/yolov8/)
+* NVIDIA Jetson Containers: [https://catalog.ngc.nvidia.com/orgs/nvidia/containers](https://catalog.ngc.nvidia.com/orgs/nvidia/containers)

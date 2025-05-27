@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [mac, jetson]  # <- c’est ici qu’on déclare les deux cibles
+        target: [mac]  # <- c’est ici qu’on déclare les deux cibles, jetson
 
     steps:
       - name: Checkout code
