@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yolov8-10-ocr-deployment       # À renommer si besoin
+  labels:
+    app: yolov8-ocr                    # Label cohérent avec service & HPA
+spec:
+  replicas: 2                          # Nombre initial de pods
+  selector:
+    matchLabels:
+      app: yolov8-ocr
+  template:
+    metadata:
+      labels:
+        app: yolov8-ocr
+    spec:
+      containers:
+        - name: yolov8-ocr-container
+          image: lourey/yolov8-10_ocr_app:mac # Ex. youruser/yolov8-10_ocr_app:latest
+          ports:
+            - containerPort: 8501      # Port exposé par l’application Streamlit
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8501
+            initialDelaySeconds: 5      # attendre 5 s avant 1ʳᵉ vérif.
+            periodSeconds: 10           # vérification toutes les 10 s
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8501
+            initialDelaySeconds: 15     # attendre 15 s avant 1ʳᵉ vérif.
+            periodSeconds: 20           # vérification toutes les 20 s
+

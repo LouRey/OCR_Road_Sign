@@ -170,6 +170,13 @@ v4l2-ctl --list-devices
 
 ---
 
+## Pour lancer kubectl
+
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f hpa.yaml
+kubectl port-forward service/yolov8-10-ocr-service 8501:8501
+
 ## 📚 Références
 
 * Kedro : [https://kedro.readthedocs.io/](https://kedro.readthedocs.io/)
