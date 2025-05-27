@@ -26,15 +26,19 @@ newgrp docker
 
 > ✅ Redémarrez votre terminal ou votre Jetson si besoin.
 
-### 1.2 Créer un volume pour Portainer
+### 1.2 Tester si Portainer est déjà installé
+
+```bash
+docker ps | grep portainer
+```
+
+Si rien n'est retourné, Portainer n'est pas encore installé.
+
+### 1.3 Installer Portainer si besoin
 
 ```bash
 docker volume create portainer_data
-```
 
-### 1.3 Lancer Portainer
-
-```bash
 docker run -d -p 8000:8000 -p 9443:9443 \
   --name portainer \
   --restart=always \
@@ -80,16 +84,33 @@ docker build -f Dockerfile.jetson -t yolov8-ocr-app:jetson .
 
 ## 🚀 4. Exécuter l'application
 
-### 4.1 Lancer le conteneur avec accès à la caméra
+### 4.1 Vérifier la présence de la caméra
+
+Sur Jetson uniquement (non applicable sur Mac) :
 
 ```bash
-docker run -it --rm \
-  --device=/dev/video0:/dev/video0 \
-  -p 8501:8501 \
-  yolov8-ocr-app:jetson
+ls /dev/video*
 ```
 
-### 4.2 Accès à l’interface Streamlit
+Si cette commande ne retourne rien, cela signifie qu'aucun périphérique vidéo compatible (comme une webcam USB) n’est détecté. Dans ce cas, exécutez sans monter la caméra.
+
+### 4.2 Lancer le conteneur via docker-compose
+
+**Sur Jetson, vous pouvez lancer avec la variable VIDEO\_DEVICE définie :**
+
+```bash
+VIDEO_DEVICE=/dev/video0 docker compose up --build
+```
+
+**Sur Mac ou si aucune caméra n'est présente, lancez simplement :**
+
+```bash
+docker compose up --build
+```
+
+L’application détectera dynamiquement la caméra dans l’interface Streamlit (si supporté).
+
+### 4.3 Accès à l’interface Streamlit
 
 ```
 http://<IP_DE_LA_JETSON>:8501
@@ -97,7 +118,7 @@ http://<IP_DE_LA_JETSON>:8501
 
 ---
 
-## 📤 5. Pousser l’image sur Docker Hub (optionnel)
+## 📄 5. Pousser l’image sur Docker Hub (optionnel)
 
 ```bash
 docker tag yolov8-ocr-app:jetson tonuser/yolov8-ocr-app:jetson
@@ -119,13 +140,13 @@ docker ps  # pour récupérer l’ID du conteneur
 docker logs <container_id>
 ```
 
-### Lister les caméras disponibles
+### Lister les caméras disponibles (Jetson uniquement)
 
 ```bash
 ls /dev/video*
 ```
 
-### Tester le flux vidéo manuellement (si installé)
+### Tester le flux vidéo manuellement (Jetson uniquement)
 
 ```bash
 sudo apt install v4l-utils

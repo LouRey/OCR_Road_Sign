@@ -6,15 +6,9 @@ on:
   pull_request:
     branches: ["main"]
 
-env:
-  IMAGE_NAME: yolov8-10_ocr_app
-
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: [mac]  # <- c’est ici qu’on déclare les deux cibles, jetson
 
     steps:
       - name: Checkout code
@@ -23,14 +17,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Set up QEMU (for cross-platform builds if needed)
-        uses: docker/setup-qemu-action@v2
-
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      - name: Build and push image for ${{ matrix.target }}
+      - name: Build Docker image (Mac version)
         run: |
-          docker build -f Dockerfile.${{ matrix.target }} \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ matrix.target }} .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ matrix.target }}
+          docker build -f Dockerfile.mac -t ${{ secrets.DOCKERHUB_USERNAME }}/yolov8-10_ocr_app:mac .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/yolov8-10_ocr_app:mac

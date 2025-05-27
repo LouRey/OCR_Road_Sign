@@ -4,12 +4,10 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.mac  # change manuellement en Dockerfile.jetson si nécessaire
+      dockerfile: Dockerfile.mac
     ports:
       - "8501:8501"
     volumes:
       - .:/app
     environment:
-      - VIDEO_DEVICE=/dev/video0
-    devices:
-      - "/dev/video0:/dev/video0"
+      - VIDEO_DEVICE=${VIDEO_DEVICE:-None}
