@@ -20,7 +20,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Copier dépendances Python
-COPY requirements.txt pyproject.toml ./
+COPY requirements-mac.txt pyproject.toml ./
 
 # Installer pip et dépendances
 RUN --mount=type=cache,target=/root/.cache/pip \
