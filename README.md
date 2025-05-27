@@ -1,14 +1,14 @@
-# 📦 OCR Panneaux Routiers - Jetson Nano (YOLOv8 + Tesseract)
+# 📦 OCR Panneaux Routiers - Jetson Nano & Mac (YOLOv8 + Tesseract + EasyOCR)
 
-Ce guide vous permet d’installer, configurer et exécuter une application de détection et lecture de panneaux routiers sur une Jetson Nano via Docker.
+Ce guide vous permet d’installer, configurer et exécuter une application de détection et lecture de panneaux routiers sur Jetson Nano **et** sur Mac.
 
-L’application repose sur Kedro, Streamlit, YOLOv8 et Tesseract OCR.
+L’application repose sur Kedro, Streamlit, YOLOv8, Tesseract OCR et EasyOCR.
 
 ---
 
-## 🔧 1. Installer un gestionnaire de conteneurs (Portainer)
+## 🔧 1. Installer un gestionnaire de conteneurs (Portainer, optionnel)
 
-Portainer est une interface web pour gérer vos conteneurs Docker simplement.
+Portainer est une interface web pour gérer vos conteneurs Docker simplement (Jetson uniquement).
 
 ### 1.1 Vérifier que Docker fonctionne
 
@@ -32,8 +32,6 @@ newgrp docker
 docker ps | grep portainer
 ```
 
-Si rien n'est retourné, Portainer n'est pas encore installé.
-
 ### 1.3 Installer Portainer si besoin
 
 ```bash
@@ -49,106 +47,123 @@ docker run -d -p 8000:8000 -p 9443:9443 \
 
 ### 1.4 Accéder à l’interface
 
-Dans un navigateur connecté au réseau local :
-
 ```
 https://<IP_DE_LA_JETSON>:9443
 ```
-
-Créez un compte admin, connectez le "Local Docker environment".
 
 ---
 
 ## 🧬 2. Cloner le dépôt de l'application
 
 ```bash
-git clone https://github.com/tonuser/yolov8-ocr-app.git
+git clone https://github.com/LouRey/OCR_Road_Sign.git
 cd yolov8-ocr-app
 ```
 
 ---
 
-## 🏗️ 3. Construire l'image Docker sur la Jetson
+## 🏗️ 3. Construire l'image Docker
 
-Assurez-vous d'être bien sur la Jetson avec une version de JetPack 5.x.
-
-### 3.1 Build de l'image avec le Dockerfile Jetson
+### 3.1 Sur Jetson Nano
 
 ```bash
 docker build -f Dockerfile.jetson -t yolov8-ocr-app:jetson .
 ```
 
-> ⚠️ Cette commande peut prendre plusieurs minutes.
+### 3.2 Sur Mac
+
+```bash
+docker build -f Dockerfile.mac -t yolov8-ocr-app:mac .
+```
 
 ---
 
 ## 🚀 4. Exécuter l'application
 
-### 4.1 Vérifier la présence de la caméra
-
-Sur Jetson uniquement (non applicable sur Mac) :
+### 4.1 Vérifier la présence d’une caméra (Jetson uniquement)
 
 ```bash
 ls /dev/video*
 ```
 
-Si cette commande ne retourne rien, cela signifie qu'aucun périphérique vidéo compatible (comme une webcam USB) n’est détecté. Dans ce cas, exécutez sans monter la caméra.
+> Cela retournera `/dev/video0`, `/dev/video1`, etc. si des caméras sont détectées.
 
-### 4.2 Lancer le conteneur via docker-compose
-
-**Sur Jetson, vous pouvez lancer avec la variable VIDEO\_DEVICE définie :**
+Optionnel : pour plus d'infos sur les caméras :
 
 ```bash
-VIDEO_DEVICE=/dev/video0 docker compose up --build
+sudo apt install v4l-utils
+v4l2-ctl --list-devices
 ```
 
-**Sur Mac ou si aucune caméra n'est présente, lancez simplement :**
+### 4.2 Lancer l'application
+
+#### ➤ Sur Jetson (avec montage de la caméra)
 
 ```bash
-docker compose up --build
+docker run --rm -it \
+  --net=host \
+  --device=/dev/video0 \
+  -v $(pwd):/app \
+  -p 8501:8501 \
+  yolov8-ocr-app:jetson
 ```
 
-L’application détectera dynamiquement la caméra dans l’interface Streamlit (si supporté).
+> 🔁 Pour monter plusieurs caméras, ajoute plusieurs `--device=/dev/videoX`
 
-### 4.3 Accès à l’interface Streamlit
+#### ➤ Sur Mac (sans accès caméra dans Docker)
+
+📌 Recommandé : lancer **hors Docker** pour accéder à la webcam :
+
+```bash
+streamlit run app.py
+```
+
+Sinon :
+
+```bash
+docker run --rm -it \
+  -v $(pwd):/app \
+  -p 8501:8501 \
+  yolov8-ocr-app:mac
+```
+
+Mais dans ce cas, la webcam intégrée ne fonctionnera pas dans le conteneur.
+
+### 4.3 Accéder à l’interface Streamlit
 
 ```
-http://<IP_DE_LA_JETSON>:8501
+http://localhost:8501  # ou http://<IP_JETSON>:8501
 ```
 
 ---
 
-## 📄 5. Pousser l’image sur Docker Hub (optionnel)
+## 📤 5. Pousser l’image sur Docker Hub (optionnel)
 
 ```bash
 docker tag yolov8-ocr-app:jetson tonuser/yolov8-ocr-app:jetson
 
 docker login
-# entrer votre identifiant et mot de passe Docker Hub
+# entrer vos identifiants Docker Hub
 
 docker push tonuser/yolov8-ocr-app:jetson
 ```
 
 ---
 
-## ✅ 6. Astuces de débogage
+## 🧪 6. Astuces de débogage
 
-### Accès aux logs d'un conteneur en cours
+### Logs du conteneur
 
 ```bash
-docker ps  # pour récupérer l’ID du conteneur
+docker ps  # pour récupérer l’ID
+
 docker logs <container_id>
 ```
 
-### Lister les caméras disponibles (Jetson uniquement)
+### Vérifier la caméra (Jetson)
 
 ```bash
 ls /dev/video*
-```
-
-### Tester le flux vidéo manuellement (Jetson uniquement)
-
-```bash
 sudo apt install v4l-utils
 v4l2-ctl --list-devices
 ```
@@ -157,8 +172,9 @@ v4l2-ctl --list-devices
 
 ## 📚 Références
 
-* Kedro: [https://kedro.readthedocs.io/](https://kedro.readthedocs.io/)
-* Streamlit: [https://docs.streamlit.io/](https://docs.streamlit.io/)
-* Tesseract: [https://tesseract-ocr.github.io/](https://tesseract-ocr.github.io/)
-* YOLOv8: [https://docs.ultralytics.com/models/yolov8/](https://docs.ultralytics.com/models/yolov8/)
-* NVIDIA Jetson Containers: [https://catalog.ngc.nvidia.com/orgs/nvidia/containers](https://catalog.ngc.nvidia.com/orgs/nvidia/containers)
+* Kedro : [https://kedro.readthedocs.io/](https://kedro.readthedocs.io/)
+* Streamlit : [https://docs.streamlit.io/](https://docs.streamlit.io/)
+* Tesseract : [https://tesseract-ocr.github.io/](https://tesseract-ocr.github.io/)
+* EasyOCR : [https://github.com/JaidedAI/EasyOCR](https://github.com/JaidedAI/EasyOCR)
+* YOLOv8 : [https://docs.ultralytics.com/models/yolov8/](https://docs.ultralytics.com/models/yolov8/)
+* NVIDIA Jetson Containers : [https://catalog.ngc.nvidia.com/orgs/nvidia/containers](https://catalog.ngc.nvidia.com/orgs/nvidia/containers)
