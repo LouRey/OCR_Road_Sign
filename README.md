@@ -167,6 +167,113 @@ ls /dev/video*
 sudo apt install v4l-utils
 v4l2-ctl --list-devices
 ```
+# 📷 Activer une caméra CSI sur Jetson Nano via SSH
+
+Ce guide vous permet d’activer une caméra CSI (type IMX219) sur une Jetson Nano via une connexion SSH.
+
+---
+
+## ✅ Pré-requis
+
+- Une caméra CSI (ex : **IMX219 – caméra officielle Raspberry Pi V2**) connectée au port CSI (nappe plate).
+- Une connexion SSH fonctionnelle à la Jetson Nano.
+- JetPack installé (au moins 4.4 ou supérieur recommandé).
+
+---
+
+## 🔧 Étapes de configuration
+
+### 1. Lancer l’outil Jetson-IO
+```bash
+sudo /opt/nvidia/jetson-io/jetson-io.py
+```
+
+> 💡 Cet outil s’utilise au clavier dans le terminal. Utilisez un terminal SSH compatible (ex : `gnome-terminal`, `iTerm`, `terminator`, etc.).
+
+---
+
+### 2. Naviguer dans les menus
+
+#### a. Depuis le menu principal, sélectionner :
+```
+Configure Jetson Nano CSI Connector
+```
+(appuyez sur **Entrée**)
+
+#### b. Ensuite, sélectionner :
+```
+Configure for compatible hardware
+```
+(appuyez sur **Entrée**)
+
+---
+
+### 3. Choisir le bon module caméra
+
+Cochez le module adapté à votre caméra :
+
+- Pour la caméra RPi V2 : cochez `Enable IMX219 Camera`
+
+> Utilisez la **barre d’espace** pour cocher la case.
+
+---
+
+### 4. Enregistrer la configuration
+
+- Naviguez jusqu’à `Save and Exit` avec les flèches
+- Appuyez sur **Entrée**
+
+---
+
+### 5. Redémarrer la Jetson Nano
+```bash
+sudo reboot
+```
+
+---
+
+## ✅ Vérification après redémarrage
+
+### 1. Vérifier que la caméra est détectée :
+```bash
+ls /dev/video*
+```
+
+Résultat attendu :
+```
+/dev/video0
+```
+
+---
+
+### 2. Tester le flux caméra (sans interface graphique) :
+```bash
+gst-launch-1.0 nvarguscamerasrc ! fakesink
+```
+
+> Si vous êtes connecté via HDMI, vous pouvez utiliser :
+```bash
+gst-launch-1.0 nvarguscamerasrc ! nvoverlaysink
+```
+
+---
+
+## 🛠️ En cas de problème
+
+- Vérifiez que le ruban CSI est bien inséré dans le bon sens, bien enfoncé.
+- Reprenez la configuration Jetson-IO pour vous assurer que l’option est bien cochée.
+- Vérifiez les logs :
+```bash
+dmesg | grep -i imx
+```
+
+---
+
+## 📌 Remarque
+
+La caméra CSI ne peut être reconnue **qu’au démarrage** car elle dépend de la configuration du **device tree**.
+
+---
 
 ---
 
