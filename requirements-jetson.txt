@@ -1,3 +1,28 @@
-nvidia-pyindex
-nvidia-tensorrt
-# pytorch, torchvision non nécessaires si inclus dans l'image de base
+# Core App
+flask
+streamlit
+tqdm
+pandas
+opencv-python-headless
+numpy
+
+# Kedro
+kedro==0.19.5
+kedro-datasets==1.6.0
+
+# OCR
+pytesseract==0.3.13
+easyocr
+
+# Détection objets
+ultralytics==8.3.115
+ultralytics-thop==2.0.14
+
+# Optionnel (mais probablement utile)
+scipy
+python-slugify
+
+# Si image de base ne contient pas ces libs
+# (à adapter si tu les vois déjà dans `pip freeze`)
+PyYAML
+requests
