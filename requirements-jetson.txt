@@ -3,7 +3,7 @@ flask
 streamlit
 tqdm
 pandas
-opencv-python-headless
+#opencv-python-headless
 numpy
 
 # Kedro
