@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/l4t-pytorch:r35.4.1-pth2.0-py3 as base
+FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3 as base
 
 # Installer dépendances système
 RUN apt-get update && apt-get install -y \
