@@ -1,38 +1,31 @@
 FROM nvcr.io/nvidia/l4t-pytorch:r32.6.1-pth1.8-py3
 
-# 1. Install system dependencies
+# 1. Dépendances système
 RUN apt-get update && apt-get install -y \
     python3-opencv \
-    python3-pip \
     tesseract-ocr \
+    python3-pip \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m ensurepip --upgrade && ln -sf /usr/local/bin/pip3 /usr/bin/pip
-
-# 2. Install French trained data for Tesseract
+# 2. Télécharger les modèles de langue Tesseract
 RUN mkdir -p /usr/share/tessdata && \
     curl -sSL https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata \
     -o /usr/share/tessdata/fra.traineddata
 
-# 3. Set working directory
 WORKDIR /app
 
-# 4. Copy requirements
 COPY requirements-jetson.txt ./
 
-# 5. Install Python packages
+# 3. Installer les dépendances Python
 RUN pip3 install --upgrade pip && \
-    pip3 install --upgrade numpy==1.19.5 packaging==24.0 && \
+    pip3 install numpy==1.19.5 packaging==24.0 && \
     pip3 install --no-cache-dir -r requirements-jetson.txt && \
     pip3 install easyocr==1.7.2 --no-deps && \
     pip3 install ultralytics==8.3.115 ultralytics-thop==2.0.14 --no-deps
 
-# 6. Copy rest of your code
 COPY . .
 
-# 7. Install your package (si tu as setup.py)
 RUN pip3 install -e .
 
-# 8. Default command
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
