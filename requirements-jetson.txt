@@ -31,3 +31,7 @@ requests
 typing-extensions>=4.10.0
 packaging>=23.2
 importlib-metadata<8.0
+
+# Empêche installation par easyocr / ultralytics
+opencv-python==999.999.999
+opencv-python-headless==999.999.999

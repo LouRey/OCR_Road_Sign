@@ -1,13 +1,11 @@
 FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3
 
-# Installer dépendances système (OpenCV, Tesseract, etc.)
 RUN apt-get update && apt-get install -y \
     python3-opencv \
     tesseract-ocr \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+    curl && \
+    rm -rf /var/lib/apt/lists/*
 
-# Télécharger les modèles de langue Tesseract (ex: français)
 RUN mkdir -p /usr/share/tessdata && \
     curl -sSL https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata \
     -o /usr/share/tessdata/fra.traineddata
@@ -16,11 +14,9 @@ WORKDIR /app
 
 COPY requirements-jetson.txt ./
 
-# Installer requirements avec fix pour numpy + suppression opencv pip
 RUN pip install --upgrade pip && \
-    pip install --upgrade numpy==1.24.4 && \
-    pip install --default-timeout=100 --retries=10 -r requirements-jetson.txt && \
-    pip uninstall -y opencv-python opencv-python-headless || true
+    pip install --upgrade numpy==1.24.4 packaging==24.0 && \
+    pip install --default-timeout=100 --retries=10 --no-deps -r requirements-jetson.txt
 
 COPY . .
 
