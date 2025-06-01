@@ -2,9 +2,8 @@
 flask
 streamlit
 tqdm
-pandas
-#opencv-python-headless
-numpy
+pandas==2.2.3
+numpy==1.24.4
 
 # Kedro
 kedro==0.19.5
@@ -12,17 +11,16 @@ kedro-datasets==1.6.0
 
 # OCR
 pytesseract==0.3.13
-easyocr
+easyocr==1.7.2
 
 # Détection objets
 ultralytics==8.3.115
 ultralytics-thop==2.0.14
 
-# Optionnel (mais probablement utile)
+# Optionnel
 scipy
 python-slugify
 
-# Si image de base ne contient pas ces libs
-# (à adapter si tu les vois déjà dans `pip freeze`)
+# Utilitaires
 PyYAML
 requests

@@ -1,21 +1,20 @@
-FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3 as base
+FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3
 
-# Installer dépendances système
 RUN apt-get update && apt-get install -y \
+    python3-opencv \
     tesseract-ocr \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+    curl && \
+    rm -rf /var/lib/apt/lists/*
 
-# Modèle de langue Tesseract
-RUN mkdir -p /usr/share/tessdata \
- && curl -sSL https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata \
+RUN mkdir -p /usr/share/tessdata && \
+    curl -sSL https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata \
     -o /usr/share/tessdata/fra.traineddata
 
 WORKDIR /app
 
 COPY requirements-jetson.txt ./
-RUN pip install --upgrade pip && \
-    pip install -r requirements-jetson.txt
+
+RUN pip install --upgrade pip && pip install -r requirements-jetson.txt
 
 COPY . .
 
