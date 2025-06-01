@@ -12,6 +12,9 @@ kedro-datasets==1.6.0
 # OCR
 pytesseract==0.3.13
 scikit-image
+pyclipper
+python-bidi
+Shapely
 
 # ATTENTION: easyocr installé via pip --no-deps (voir Dockerfile)
 
