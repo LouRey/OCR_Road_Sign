@@ -23,7 +23,7 @@ MODEL_DIR = PROJECT_PATH / "models"
 DEFAULT_MODEL = MODEL_DIR / "best.pt"
 PARAMS_FILE = PROJECT_PATH / "conf" / "base" / "parameters_ocr.yml"
 RAW_VIDEO = PROJECT_PATH / "data" / "01_raw" / "video.mp4"
-UPLOADED_MODEL = PROJECT_PATH / "data" / "06_models" / "uploaded_model.pt"
+UPLOADED_MODEL = PROJECT_PATH / "data" / "06_models" / "best.pt"
 
 # === Fonctions utilitaires ===
 def clean_tmp(age_seconds: float = 3600):
