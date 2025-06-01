@@ -19,7 +19,7 @@ COPY requirements-jetson.txt ./
 
 # 3. Installer les dépendances Python
 RUN pip3 install --upgrade pip && \
-    pip3 install numpy==1.19.5 packaging==24.0 && \
+    pip3 install numpy==1.19.5 packaging==21.3 && \
     pip3 install --no-cache-dir -r requirements-jetson.txt && \
     pip3 install easyocr==1.7.2 --no-deps && \
     pip3 install ultralytics==8.3.115 ultralytics-thop==2.0.14 --no-deps

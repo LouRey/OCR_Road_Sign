@@ -1,13 +1,13 @@
 # Core App
 flask
-streamlit
+streamlit==0.87.0
 tqdm
-pandas==2.0.3
+pandas==1.3.5
 numpy==1.19.5
 
 # Kedro
-kedro==0.19.5
-kedro-datasets==1.6.0
+kedro==0.17.7
+kedro-datasets==0.9.1
 
 # OCR
 pytesseract==0.3.13
@@ -33,10 +33,6 @@ python-slugify
 PyYAML
 requests
 
-# Fix incompatibilité Altair & kedro
-typing-extensions>=4.10.0
-packaging==24.0
-importlib-metadata<8.0
-
-matplotlib
-psutil
+# Fix compatibilité Kedro / Altair
+typing-extensions==3.10.0.2
+importlib-metadata<5.0
