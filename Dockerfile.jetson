@@ -19,7 +19,7 @@ COPY requirements-jetson.txt ./
 # Installer requirements avec fix pour numpy + suppression opencv pip
 RUN pip install --upgrade pip && \
     pip install --upgrade numpy==1.24.4 && \
-    RUN pip install --default-timeout=100 --retries=10 -r requirements-jetson.txt && \
+    pip install --default-timeout=100 --retries=10 -r requirements-jetson.txt && \
     pip uninstall -y opencv-python opencv-python-headless || true
 
 COPY . .
