@@ -1,7 +1,11 @@
 FROM nvcr.io/nvidia/l4t-pytorch:r32.7.1-pth1.9-py3
 
 # Installer curl et gnupg pour gérer les clés
-RUN apt-get update && apt-get install -y curl gnupg
+RUN rm -f /etc/apt/sources.list.d/kitware.list && \
+    apt-get update && \
+    apt-get install -y curl gnupg
+
+# suite de ton Dockerfile…
 
 # Ajout de la clé GPG manquante pour Kitware (CMake)
 RUN curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/kitware.gpg
