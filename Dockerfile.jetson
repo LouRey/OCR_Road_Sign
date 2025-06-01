@@ -32,7 +32,7 @@ RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements-jetson.txt && \
     \
     # Forcer compilation locale d’EasyOCR et d’Ultralytics (pas de wheel x86)
-    pip install --no-cache-dir --no-binary :all: easyocr==1.7.2 && \
+    #pip install --no-cache-dir --no-binary :all: easyocr==1.7.2 && \
     pip install --no-cache-dir --no-binary :all: ultralytics==8.3.115 ultralytics-thop==2.0.14
 
 # ────────────────────────────────────────────────────────────────────────────────
