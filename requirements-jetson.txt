@@ -1,13 +1,13 @@
 # Core App
 flask
-streamlit==0.87.0
+streamlit
 tqdm
-pandas
+pandas==2.0.3
 numpy==1.19.5
 
 # Kedro
-kedro==0.17.7
-kedro-datasets==0.3.2
+kedro==0.19.5
+kedro-datasets==1.6.0
 
 # OCR
 pytesseract==0.3.13
@@ -16,10 +16,10 @@ pyclipper
 python-bidi
 Shapely
 
-# ATTENTION: easyocr installe via pip --no-deps (voir Dockerfile)
+# ATTENTION: easyocr installé via pip --no-deps (voir Dockerfile)
 
-# Detection objets
-# ATTENTION: ultralytics et ultralytics-thop installes via pip --no-deps (voir Dockerfile)
+# Détection objets
+# ATTENTION: ultralytics et ultralytics-thop installés via pip --no-deps (voir Dockerfile)
 matplotlib
 psutil
 Pillow
@@ -33,6 +33,10 @@ python-slugify
 PyYAML
 requests
 
-# Fix compatibilite Kedro / Altair
-typing-extensions==3.10.0.2
-importlib-metadata<5.0
+# Fix incompatibilité Altair & kedro
+typing-extensions>=4.10.0
+packaging==21.3
+importlib-metadata<8.0
+
+matplotlib
+psutil
