@@ -1,3 +1,5 @@
+protobuf>=3.3.0
+
 # Core App
 flask
 streamlit
@@ -29,5 +31,3 @@ requests
 typing-extensions>=4.10.0
 packaging>=23.2
 importlib-metadata<8.0
-
-protobuf>=3.3.0
