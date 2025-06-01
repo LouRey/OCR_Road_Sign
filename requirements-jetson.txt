@@ -7,7 +7,7 @@ numpy==1.19.5
 
 # Kedro
 kedro==0.17.7
-kedro-datasets==0.9.1
+kedro-datasets
 
 # OCR
 pytesseract==0.3.13
