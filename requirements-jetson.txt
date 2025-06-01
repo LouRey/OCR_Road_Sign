@@ -1,42 +1,32 @@
-# Core App
+# App Web
 flask
 streamlit
 tqdm
-pandas==2.0.3
-numpy==1.19.5
+pandas
 
 # Kedro
-kedro==0.19.5
-kedro-datasets==1.6.0
+kedro
+kedro-datasets
 
 # OCR
-pytesseract==0.3.13
+pytesseract
 scikit-image
 pyclipper
 python-bidi
 Shapely
 
-# ATTENTION: easyocr installé via pip --no-deps (voir Dockerfile)
-
-# Détection objets
-# ATTENTION: ultralytics et ultralytics-thop installés via pip --no-deps (voir Dockerfile)
+# Détection d’objets et utilitaires graphiques (Torch/torchvision sont déjà dans l’image de base)
 matplotlib
 psutil
 Pillow
-torchvision
-
-# Optionnel
 scipy
 python-slugify
 
-# Utilitaires
+# Utilitaires divers
 PyYAML
 requests
 
-# Fix incompatibilité Altair & kedro
+# Compatibilité Altair & Kedro
 typing-extensions>=4.10.0
-packaging==21.3
+packaging>=21.3
 importlib-metadata<8.0
-
-matplotlib
-psutil

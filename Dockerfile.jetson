@@ -1,30 +1,40 @@
+# --------------------------------------------------------------------------------------------------
+# Base L4T-PyTorch officielle pour Jetson Nano (inclut torch + torchvision optimisés pour ARM + CUDA)
 FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3
 
-# Dépendances système (OpenCV, Tesseract, etc.)
+# --------------------------------------------------------------------------------------------------
+# 1) Installer dépendances système (NumPy ARM, OpenCV ARM, Tesseract, etc.)
 RUN apt-get update && apt-get install -y \
-    python3-opencv \
-    tesseract-ocr \
+    python3-numpy \                   
+    python3-opencv \                  
+    v4l-utils \                       
+    tesseract-ocr libtesseract-dev libleptonica-dev \
+    libjpeg-dev libpng-dev libtiff-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Télécharger les modèles de langue Tesseract (ex: français)
+# --------------------------------------------------------------------------------------------------
+# 2) Télécharger le modèle Tesseract français
 RUN mkdir -p /usr/share/tessdata && \
     curl -sSL https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata \
-    -o /usr/share/tessdata/fra.traineddata
+         -o /usr/share/tessdata/fra.traineddata
 
+# --------------------------------------------------------------------------------------------------
+# 3) Copier le requirements et installer les paquets Python
 WORKDIR /app
-
 COPY requirements-jetson.txt ./
 
-# Installer Python packages principaux (sans opencv via pip)
 RUN pip install --upgrade pip && \
-    pip install --upgrade numpy==1.24.4 packaging==24.0 && \
     pip install --no-cache-dir -r requirements-jetson.txt && \
-    pip install easyocr==1.7.2 --no-deps && \
-    pip install ultralytics==8.3.115 ultralytics-thop==2.0.14 --no-deps
+    \
+    # Forcer compilation locale d’EasyOCR et d’Ultralytics (évite le wheel x86 incompatible ARM)
+    pip install --no-cache-dir --no-binary :all: easyocr==1.7.2 && \
+    pip install --no-cache-dir --no-binary :all: ultralytics==8.3.115 ultralytics-thop==2.0.14
 
-COPY . .
+# --------------------------------------------------------------------------------------------------
+# 4) Copier tout le code de l’application dans /app
+COPY . /app
 
-RUN pip install -e .
-
+# --------------------------------------------------------------------------------------------------
+# 5) Lancer Streamlit sur le port 8501
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
