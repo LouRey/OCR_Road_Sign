@@ -86,7 +86,14 @@ v4l2-ctl --list-devices
 #### ➤ Sur Jetson (avec caméra)
 
 ```bash
-docker run --rm -it   --net=host   --device=/dev/video0   -v $(pwd):/app   -p 8501:8501   yolov8-ocr-app:jetson
+docker run --rm -it \
+  --runtime nvidia \
+  --net=host \
+  --device=/dev/video0 \
+  -v $(pwd):/app \
+  -p 8501:8501 \
+  yolov8-ocr-app:jetson
+
 ```
 
 #### ➤ Sur Mac (sans accès caméra en Docker)

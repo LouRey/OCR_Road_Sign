@@ -46,7 +46,10 @@ def _iou(box1, box2):
 
 def detect_and_ocr(video_path: str, model_path: str, max_frames: int = 0) -> list:
     cap = cv2.VideoCapture(video_path)
+    device = _get_device()
+    print(f'[DEVICE] {device}')
     model = YOLO(model_path)
+    model.to(device)
     rois_with_texts = []
     seen_boxes = []
 
@@ -104,8 +107,10 @@ def annotate_video(video_path: str, rois_with_texts: list, model_path: str, outp
         logger.info(f"[ANNOTATION] Ancien fichier supprimé : {output_path}")
     
     cap = cv2.VideoCapture(video_path)
+    device = _get_device()
+    print(f'[DEVICE] {device}')
     model = YOLO(model_path)
-
+    model.to(device)
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
