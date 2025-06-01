@@ -1,32 +1,36 @@
-# App Web
+# ────────────────────────────────────────────────────────────────────────────────
+# Bibliothèques Python de l’application (hors NumPy, Torch, OpenCV)
+# ────────────────────────────────────────────────────────────────────────────────
+
+# 1. App Web
 flask
 streamlit
 tqdm
 pandas
 
-# Kedro
+# 2. Kedro (gestion de pipeline)
 kedro
 kedro-datasets
 
-# OCR
+# 3. OCR
 pytesseract
 scikit-image
 pyclipper
 python-bidi
 Shapely
 
-# Détection d’objets et utilitaires graphiques (Torch/torchvision sont déjà dans l’image de base)
+# 4. Détection objets et utilitaires graphiques
 matplotlib
 psutil
 Pillow
 scipy
 python-slugify
 
-# Utilitaires divers
+# 5. Utilitaires divers
 PyYAML
 requests
 
-# Compatibilité Altair & Kedro
+# 6. Compatibilité Altair & Kedro
 typing-extensions>=4.10.0
 packaging>=21.3
 importlib-metadata<8.0

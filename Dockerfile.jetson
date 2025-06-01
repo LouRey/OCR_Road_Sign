@@ -1,9 +1,11 @@
-# --------------------------------------------------------------------------------------------------
-# Base L4T-PyTorch officielle pour Jetson Nano (inclut torch + torchvision optimisés pour ARM + CUDA)
+# ────────────────────────────────────────────────────────────────────────────────
+# Base L4T-PyTorch officielle Jetson Nano (Torch + torchvision déjà optimisés)
+# ────────────────────────────────────────────────────────────────────────────────
 FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3
 
-# --------------------------------------------------------------------------------------------------
-# 1) Installer dépendances système (NumPy ARM, OpenCV ARM, Tesseract, etc.)
+# ────────────────────────────────────────────────────────────────────────────────
+# 1) Installer dépendances système ARM (NumPy, OpenCV, Tesseract, etc.)
+# ────────────────────────────────────────────────────────────────────────────────
 RUN apt-get update && apt-get install -y \
     python3-numpy \                   
     python3-opencv \                  
@@ -13,28 +15,32 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# --------------------------------------------------------------------------------------------------
+# ────────────────────────────────────────────────────────────────────────────────
 # 2) Télécharger le modèle Tesseract français
+# ────────────────────────────────────────────────────────────────────────────────
 RUN mkdir -p /usr/share/tessdata && \
     curl -sSL https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata \
          -o /usr/share/tessdata/fra.traineddata
 
-# --------------------------------------------------------------------------------------------------
-# 3) Copier le requirements et installer les paquets Python
+# ────────────────────────────────────────────────────────────────────────────────
+# 3) Copier et installer les bibliothèques Python depuis requirements-jetson.txt
+# ────────────────────────────────────────────────────────────────────────────────
 WORKDIR /app
 COPY requirements-jetson.txt ./
 
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements-jetson.txt && \
     \
-    # Forcer compilation locale d’EasyOCR et d’Ultralytics (évite le wheel x86 incompatible ARM)
+    # Forcer compilation locale d’EasyOCR et d’Ultralytics (pas de wheel x86)
     pip install --no-cache-dir --no-binary :all: easyocr==1.7.2 && \
     pip install --no-cache-dir --no-binary :all: ultralytics==8.3.115 ultralytics-thop==2.0.14
 
-# --------------------------------------------------------------------------------------------------
-# 4) Copier tout le code de l’application dans /app
+# ────────────────────────────────────────────────────────────────────────────────
+# 4) Copier tout le code de l’application (app.py et dossiers) dans /app
+# ────────────────────────────────────────────────────────────────────────────────
 COPY . /app
 
-# --------------------------------------------------------------------------------------------------
-# 5) Lancer Streamlit sur le port 8501
+# ────────────────────────────────────────────────────────────────────────────────
+# 5) Point d’entrée : lancer Streamlit sur le port 8501
+# ────────────────────────────────────────────────────────────────────────────────
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
