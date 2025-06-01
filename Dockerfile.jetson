@@ -1,14 +1,13 @@
-FROM nvcr.io/nvidia/l4t-pytorch:r32.6.1-pth1.8-py3
+FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3
 
-# 1. Dépendances système
+# Dépendances système (OpenCV, Tesseract, etc.)
 RUN apt-get update && apt-get install -y \
     python3-opencv \
     tesseract-ocr \
-    python3-pip \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Télécharger les modèles de langue Tesseract
+# Télécharger les modèles de langue Tesseract (ex: français)
 RUN mkdir -p /usr/share/tessdata && \
     curl -sSL https://github.com/tesseract-ocr/tessdata/raw/main/fra.traineddata \
     -o /usr/share/tessdata/fra.traineddata
@@ -17,15 +16,15 @@ WORKDIR /app
 
 COPY requirements-jetson.txt ./
 
-# 3. Installer les dépendances Python
-RUN pip3 install --upgrade pip && \
-    pip3 install numpy==1.19.5 packaging==21.3 && \
-    pip3 install --no-cache-dir -r requirements-jetson.txt && \
-    pip3 install easyocr==1.7.2 --no-deps && \
-    pip3 install ultralytics==8.3.115 ultralytics-thop==2.0.14 --no-deps
+# Installer Python packages principaux (sans opencv via pip)
+RUN pip install --upgrade pip && \
+    pip install --upgrade numpy==1.24.4 packaging==24.0 && \
+    pip install --no-cache-dir -r requirements-jetson.txt && \
+    pip install easyocr==1.7.2 --no-deps && \
+    pip install ultralytics==8.3.115 ultralytics-thop==2.0.14 --no-deps
 
 COPY . .
 
-RUN pip3 install -e .
+RUN pip install -e .
 
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
