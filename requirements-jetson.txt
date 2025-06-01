@@ -16,10 +16,10 @@ pyclipper
 python-bidi
 Shapely
 
-# ATTENTION: easyocr installé via pip --no-deps (voir Dockerfile)
+# ATTENTION: easyocr installe via pip --no-deps (voir Dockerfile)
 
-# Détection objets
-# ATTENTION: ultralytics et ultralytics-thop installés via pip --no-deps (voir Dockerfile)
+# Detection objets
+# ATTENTION: ultralytics et ultralytics-thop installes via pip --no-deps (voir Dockerfile)
 matplotlib
 psutil
 Pillow
@@ -33,6 +33,6 @@ python-slugify
 PyYAML
 requests
 
-# Fix compatibilité Kedro / Altair
+# Fix compatibilite Kedro / Altair
 typing-extensions==3.10.0.2
 importlib-metadata<5.0
