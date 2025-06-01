@@ -20,6 +20,10 @@ Shapely
 
 # Détection objets
 # ATTENTION: ultralytics et ultralytics-thop installés via pip --no-deps (voir Dockerfile)
+matplotlib
+psutil
+Pillow
+torchvision
 
 # Optionnel
 scipy
@@ -35,3 +39,4 @@ packaging==24.0
 importlib-metadata<8.0
 
 matplotlib
+psutil
