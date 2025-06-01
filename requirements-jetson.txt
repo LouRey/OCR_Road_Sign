@@ -2,7 +2,7 @@
 flask
 streamlit==0.87.0
 tqdm
-pandas#==1.3.5
+pandas
 numpy==1.19.5
 
 # Kedro
