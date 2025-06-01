@@ -1,5 +1,8 @@
 FROM nvcr.io/nvidia/l4t-pytorch:r32.7.1-pth1.9-py3
 
+# Ajout de la clé GPG manquante pour Kitware (CMake)
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 16FAAD7AF99A65E2
+
 # Dépendances système
 RUN apt-get update && apt-get install -y \
     python3-opencv \
