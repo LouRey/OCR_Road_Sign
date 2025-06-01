@@ -24,3 +24,8 @@ python-slugify
 # Utilitaires
 PyYAML
 requests
+
+# Fix incompatibilité Altair
+typing-extensions>=4.10.0
+packaging>=23.2
+importlib-metadata<8.0

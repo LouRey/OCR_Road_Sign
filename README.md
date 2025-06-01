@@ -10,7 +10,7 @@ L’application repose sur Kedro, Streamlit, YOLOv8, Tesseract OCR et EasyOCR.
 
 ```bash
 git clone https://github.com/LouRey/OCR_Road_Sign.git
-cd yolov8-ocr-app
+cd OCR_Road_Sign
 ```
 
 ---
